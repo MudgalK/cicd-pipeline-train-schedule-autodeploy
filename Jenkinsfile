@@ -7,6 +7,15 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                dependencies {
+                    classpath "com.github.node-gradle:gradle-node-plugin:2.2.4"
+                }
+
+                apply plugin: "com.github.node-gradle.node"
+                node {
+                    version = '14.19.3'
+                    download = true
+                }
                 echo 'Running build automation'
                 sh './gradlew build --no-daemon'
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
