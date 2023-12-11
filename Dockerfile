@@ -1,4 +1,4 @@
-FROM node:carbon
+FROM mudgalK/train-schedule
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
