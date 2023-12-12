@@ -12,31 +12,38 @@ pipeline {
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
             }
         }
-        stage('Build Docker Image') {
+        //stage('Build Docker Image') {
             //when {
             //    branch 'master'
             //}
-            steps {
-                script {
-                    app = docker.build(DOCKER_IMAGE_NAME)
-                    app.inside {
-                        sh 'echo Hello, World!'
-                    }
-                }
-            }
-        }
-        stage('Push Docker Image') {
+          //  steps {
+           //     script {
+           //         app = docker.build(DOCKER_IMAGE_NAME)
+           //         app.inside {
+           //             sh 'echo Hello, World!'
+           //         }
+           //     }
+           // }
+        //}
+        stage('build & push docker image') {
             //when {
               //  branch 'master'
             //}
+           // steps {
+            //    script {
+             //       docker.withRegistry(credentialsId: 'DOCKER_HUB_LOGIN', url: 'https://index.docker.io/v1/') {
+             //           app.push("${env.BUILD_NUMBER}")
+              //          app.push("latest")
+              //      }
+                //}
+            //}
             steps {
-                script {
-                    docker.withRegistry(credentialsId: 'DOCKER_HUB_LOGIN', url: 'https://index.docker.io/v1/') {
-                        app.push("${env.BUILD_NUMBER}")
-                        app.push("latest")
-                    }
-                }
-            }
+              withDockerRegistry(credentialsId: 'DOCKER_HUB_LOGIN', url: 'https://index.docker.io/v1/') {
+                    sh script: 'cd  $WORKSPACE'
+                    sh script: 'docker build --file Dockerfile --tag docker.io/mudgalk/project:$BUILD_NUMBER .'
+                    sh script: 'docker push docker.io/lerndevops/samplejavaapp:$BUILD_NUMBER'
+              }	
+           }		
         }
         
         stage('DeployToProduction') {
