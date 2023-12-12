@@ -41,7 +41,7 @@ pipeline {
               withDockerRegistry(credentialsId: 'DOCKER_HUB_LOGIN', url: 'https://index.docker.io/v1/') {
                     sh script: 'cd  $WORKSPACE'
                     sh script: 'docker build --file Dockerfile --tag docker.io/mudgalk/project:$BUILD_NUMBER .'
-                    sh script: 'docker push docker.io/lerndevops/samplejavaapp:$BUILD_NUMBER'
+                    sh script: 'docker push docker.io/mudgalk/project:$BUILD_NUMBER'
               }	
            }		
         }
@@ -50,9 +50,9 @@ pipeline {
             //when {
              //   branch 'master'
             //}
-            environment { 
-                CANARY_REPLICAS = 0
-            }
+            //environment { 
+            //    CANARY_REPLICAS = 0
+            //}
             steps {
               sh script: 'ansible-playbook --inventory /tmp/inv $WORKSPACE/deploy/deploy-kube.yml --extra-vars "env=prod build=$BUILD_NUMBER"'
             }
