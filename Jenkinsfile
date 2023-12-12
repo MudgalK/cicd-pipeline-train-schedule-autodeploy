@@ -46,15 +46,41 @@ pipeline {
            }		
         }
         
+        stage('CanaryDeploy') {
+            //when {
+              //  branch 'master'
+            //}
+            environment { 
+                CANARY_REPLICAS = 1
+            }
+            steps {
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube-canary.yml',
+                    enableConfigSubstitution: true
+                )
+            }
+        }
         stage('DeployToProduction') {
             //when {
              //   branch 'master'
             //}
-            //environment { 
-            //    CANARY_REPLICAS = 0
-            //}
+            environment { 
+                CANARY_REPLICAS = 0
+            }
             steps {
-              sh script: 'ansible-playbook --inventory /tmp/inv $WORKSPACE/deploy/deploy-kube.yml --extra-vars "env=prod build=$BUILD_NUMBER"'
+                input 'Deploy to Production?'
+                milestone(1)
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube-canary.yml',
+                    enableConfigSubstitution: true
+                )
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube.yml',
+                    enableConfigSubstitution: true
+                )
             }
         }
     }
